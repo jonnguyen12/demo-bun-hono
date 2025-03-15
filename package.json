@@ -13,5 +13,10 @@
 	"devDependencies": {
 		"@types/bun": "latest",
 		"prisma": "^6.5.0"
+	},
+	"packageManager": "bun@1.2.5",
+	"engines": {
+		"bun": ">=1.2.5",
+		"node": ">=22"
 	}
 }

@@ -6319,6 +6319,14 @@ var require_client = __commonJS((exports) => {
           fromEnvVar: null,
           value: "darwin-arm64",
           native: true
+        },
+        {
+          fromEnvVar: null,
+          value: "linux-musl"
+        },
+        {
+          fromEnvVar: null,
+          value: "debian-openssl-3.0.x"
         }
       ],
       previewFeatures: [],
@@ -6351,7 +6359,8 @@ var require_client = __commonJS((exports) => {
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -6393,7 +6402,7 @@ model Comment {
   authorId  Int
 }
 `,
-    inlineSchemaHash: "e8a393e7db8cbeb9d58cdc40614ded83ba83716d96a66f15fc29cf2c46fb10e6",
+    inlineSchemaHash: "d708ed6a9243a78b8d4e478957e3c4fa55cb63c9be6e8c46e096f243e0ffc7aa",
     copyEngine: true
   };
   var fs = __require("fs");
@@ -6423,6 +6432,10 @@ model Comment {
   Object.assign(exports, Prisma);
   path.join(__dirname, "libquery_engine-darwin-arm64.dylib.node");
   path.join(process.cwd(), "node_modules/.prisma/client/libquery_engine-darwin-arm64.dylib.node");
+  path.join(__dirname, "libquery_engine-linux-musl.so.node");
+  path.join(process.cwd(), "node_modules/.prisma/client/libquery_engine-linux-musl.so.node");
+  path.join(__dirname, "libquery_engine-debian-openssl-3.0.x.so.node");
+  path.join(process.cwd(), "node_modules/.prisma/client/libquery_engine-debian-openssl-3.0.x.so.node");
   path.join(__dirname, "schema.prisma");
   path.join(process.cwd(), "node_modules/.prisma/client/schema.prisma");
 });
