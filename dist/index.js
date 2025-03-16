@@ -6322,11 +6322,7 @@ var require_client = __commonJS((exports) => {
         },
         {
           fromEnvVar: null,
-          value: "linux-musl"
-        },
-        {
-          fromEnvVar: null,
-          value: "debian-openssl-3.0.x"
+          value: "linux-musl-arm64-openssl-3.0.x"
         }
       ],
       previewFeatures: [],
@@ -6360,7 +6356,7 @@ var require_client = __commonJS((exports) => {
 
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native", "linux-musl", "debian-openssl-3.0.x"]
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
 }
 
 datasource db {
@@ -6402,7 +6398,7 @@ model Comment {
   authorId  Int
 }
 `,
-    inlineSchemaHash: "d708ed6a9243a78b8d4e478957e3c4fa55cb63c9be6e8c46e096f243e0ffc7aa",
+    inlineSchemaHash: "dc50ebdecf6b58b2540309d923cd25f1a9ab505f8670533cf813874324db0a05",
     copyEngine: true
   };
   var fs = __require("fs");
@@ -6432,10 +6428,8 @@ model Comment {
   Object.assign(exports, Prisma);
   path.join(__dirname, "libquery_engine-darwin-arm64.dylib.node");
   path.join(process.cwd(), "node_modules/.prisma/client/libquery_engine-darwin-arm64.dylib.node");
-  path.join(__dirname, "libquery_engine-linux-musl.so.node");
-  path.join(process.cwd(), "node_modules/.prisma/client/libquery_engine-linux-musl.so.node");
-  path.join(__dirname, "libquery_engine-debian-openssl-3.0.x.so.node");
-  path.join(process.cwd(), "node_modules/.prisma/client/libquery_engine-debian-openssl-3.0.x.so.node");
+  path.join(__dirname, "libquery_engine-linux-musl-arm64-openssl-3.0.x.so.node");
+  path.join(process.cwd(), "node_modules/.prisma/client/libquery_engine-linux-musl-arm64-openssl-3.0.x.so.node");
   path.join(__dirname, "schema.prisma");
   path.join(process.cwd(), "node_modules/.prisma/client/schema.prisma");
 });
@@ -8296,7 +8290,10 @@ app.post("/comments", async (c) => {
     }
   }
 });
-var src_default = app;
+var src_default = {
+  port: 3001,
+  fetch: app.fetch
+};
 export {
   src_default as default
 };

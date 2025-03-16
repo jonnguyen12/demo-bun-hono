@@ -8,10 +8,14 @@
 	},
 	"dependencies": {
 		"@prisma/client": "^6.5.0",
-		"hono": "^4.7.4"
+		"bcryptjs": "^3.0.2",
+		"hono": "^4.7.4",
+		"jsonwebtoken": "^9.0.2"
 	},
 	"devDependencies": {
+		"@types/bcryptjs": "^3.0.0",
 		"@types/bun": "latest",
+		"@types/jsonwebtoken": "^9.0.9",
 		"prisma": "^6.5.0"
 	},
 	"packageManager": "bun@1.2.5",

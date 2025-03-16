@@ -3,18 +3,171 @@ import { PrismaClient } from "@prisma/client";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
+import * as jwt from "jsonwebtoken";
+import * as bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 const app = new Hono();
+
+// JWT Secret - in production, use environment variable
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 // Middlewares
 app.use("*", logger());
 app.use("*", cors());
 app.use("*", prettyJSON());
 
+// Authentication middleware
+async function authenticate(c, next) {
+	const authHeader = c.req.header("Authorization");
+
+	if (!authHeader || !authHeader.startsWith("Bearer ")) {
+		return c.json({ error: "Unauthorized - No token provided" }, 401);
+	}
+
+	const token = authHeader.split(" ")[1];
+
+	try {
+		const decoded = jwt.verify(token, JWT_SECRET);
+		c.set("user", decoded);
+		await next();
+	} catch (error) {
+		return c.json({ error: "Unauthorized - Invalid token" }, 401);
+	}
+}
+
 // Root route
 app.get("/", (c) => {
 	return c.text("Hello Hono with Prisma!");
+});
+
+// Authentication routes
+app.post("/users/register", async (c) => {
+	try {
+		const body = await c.req.json();
+
+		// Check if user already exists
+		const existingUser = await prisma.user.findUnique({
+			where: { email: body.email },
+		});
+
+		if (existingUser) {
+			return c.json({ error: "User with this email already exists" }, 400);
+		}
+
+		// Hash password
+		const hashedPassword = await bcrypt.hash(body.password, 10);
+
+		// Create user
+		const user = await prisma.user.create({
+			data: {
+				email: body.email,
+				name: body.name,
+				password: hashedPassword,
+			},
+			select: {
+				id: true,
+				email: true,
+				name: true,
+				createdAt: true,
+			},
+		});
+
+		// Generate token
+		const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
+			expiresIn: "7d",
+		});
+
+		return c.json({ user, token }, 201);
+	} catch (error) {
+		if (error instanceof Error) {
+			return c.json({ error: error.message }, 500);
+		}
+		return c.json({ error: "An unknown error occurred" }, 500);
+	}
+});
+
+app.post("/users/login", async (c) => {
+	try {
+		const body = await c.req.json();
+
+		// Find user
+		const user = await prisma.user.findUnique({
+			where: { email: body.email },
+		});
+
+		if (!user) {
+			return c.json({ error: "Invalid credentials" }, 401);
+		}
+
+		// Verify password
+		const isPasswordValid = await bcrypt.compare(body.password, user.password);
+
+		if (!isPasswordValid) {
+			return c.json({ error: "Invalid credentials" }, 401);
+		}
+
+		// Generate token
+		const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
+			expiresIn: "7d",
+		});
+
+		return c.json({
+			user: {
+				id: user.id,
+				email: user.email,
+				name: user.name,
+			},
+			token,
+		});
+	} catch (error) {
+		if (error instanceof Error) {
+			return c.json({ error: error.message }, 500);
+		}
+			return c.json({ error: "An unknown error occurred" }, 500);
+	}
+});
+
+app.get("/users/profile", authenticate, async (c) => {
+	try {
+		const userData = c.get("user");
+
+		const user = await prisma.user.findUnique({
+			where: { id: userData.id },
+			select: {
+				id: true,
+				email: true,
+				name: true,
+				createdAt: true,
+				posts: {
+					select: {
+						id: true,
+						title: true,
+						createdAt: true,
+					},
+				},
+				comments: {
+					select: {
+						id: true,
+						content: true,
+						createdAt: true,
+					},
+				},
+			},
+		});
+
+		if (!user) {
+			return c.json({ error: "User not found" }, 404);
+		}
+
+		return c.json({ user });
+	} catch (error) {
+		if (error instanceof Error) {
+			return c.json({ error: error.message }, 500);
+		} else {
+			return c.json({ error: "An unknown error occurred" }, 500);
+		}
+	}
 });
 
 // User routes
@@ -219,4 +372,7 @@ app.post("/comments", async (c) => {
 	}
 });
 
-export default app;
+export default {
+	port: 3001,
+	fetch: app.fetch,
+};
