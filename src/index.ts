@@ -124,7 +124,7 @@ app.post("/users/login", async (c) => {
 		if (error instanceof Error) {
 			return c.json({ error: error.message }, 500);
 		}
-			return c.json({ error: "An unknown error occurred" }, 500);
+		return c.json({ error: "An unknown error occurred" }, 500);
 	}
 });
 
@@ -372,7 +372,4 @@ app.post("/comments", async (c) => {
 	}
 });
 
-export default {
-	port: 3001,
-	fetch: app.fetch,
-};
+export default app;
